@@ -52,7 +52,7 @@ res = ""
 #plt.show()
 
 cur_nail = 1        #start at arbitrary nail
-ref_arr = ref.load()
+ref_arr = np.transpose(np.array(ref)[:, :, 0])
 base_arr = base.load()
 
 for i in range(MAX_ITERATIONS):
@@ -65,8 +65,7 @@ for i in range(MAX_ITERATIONS):
         new_line = line(nails[cur_nail][0], nails[cur_nail][1], nails[n][0], nails[n][1])
         num_pts = len(new_line[0])
 
-        for j in range(num_pts):
-            tmp_value += ref_arr[int(new_line[0][j]), int(new_line[1][j])][0]
+        tmp_value = np.sum(ref_arr[new_line])
 
         if tmp_value/num_pts < min_avg_value:
             best_line = new_line
@@ -81,8 +80,7 @@ for i in range(MAX_ITERATIONS):
     #    base.save(title)
     #    res += "\n --- "+str(i)+" --- \n"
 
-    subtractLine = ImageDraw.Draw(ref)
-    subtractLine.line((nails[cur_nail][0],nails[cur_nail][1],nails[new_nail][0],nails[new_nail][1]), fill=255)
+    ref_arr[best_line] = 255
     addLine = ImageDraw.Draw(base)
     addLine.line((nails[cur_nail][0],nails[cur_nail][1],nails[new_nail][0],nails[new_nail][1]), fill=0)
     res += " " + str(new_nail)
