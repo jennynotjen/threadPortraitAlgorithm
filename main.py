@@ -14,8 +14,16 @@ PIXEL_WIDTH = float(args[2])        #ex: 1 - suggest keeping this constant and c
 LINE_TRANSPARENCY = float(args[3])  #value between 0 to 1
 NUM_NAILS = int(args[4])            #ex: 300
 MAX_ITERATIONS = int(args[5])       #ex: 4000
+
+# identifys if the process should be beautified or not
+BEAUTIFY = False
+if len(args) > 6:
+    BEAUTIFY = args[6].lower() == 'true'
+
+    
 NAILS_SKIP = 10
 OUTPUT_TITLE = "output"
+RESULT_TITLE = "result"
 
 pixels = int(BOARD_WIDTH/PIXEL_WIDTH)
 size = (pixels+1, pixels+1)
@@ -44,8 +52,16 @@ cx, cy = (BOARD_WIDTH/2/PIXEL_WIDTH, BOARD_WIDTH/2/PIXEL_WIDTH)  # center of cir
 xs = cx + BOARD_WIDTH*0.5*np.cos(angles)/PIXEL_WIDTH
 ys = cy + BOARD_WIDTH*0.5*np.sin(angles)/PIXEL_WIDTH
 nails = list(map(lambda x,y: (int(x),int(y)), xs,ys))
-results = open("results.txt", "w")
 res = ""
+
+# showing input values if BEAUTIFY is true
+if BEAUTIFY:
+    res += "Board Width: " + str(BOARD_WIDTH) + "\n"
+    res += "Pixel Width: " + str(PIXEL_WIDTH) + "\n"
+    res += "Line Transparency: " + str(LINE_TRANSPARENCY) + "\n"
+    res += "Number of Nails: " + str(NUM_NAILS) + "\n"
+    res += "Maximum Iterations: " + str(MAX_ITERATIONS) + "\n"
+    res += "python command:   py main.py " + str(BOARD_WIDTH) + " " + str(PIXEL_WIDTH) + " " + str(LINE_TRANSPARENCY) + " " + str(NUM_NAILS) + " " + str(MAX_ITERATIONS) + " " + str(BEAUTIFY)
 
 #Uncomment to show nails plot
 #plt.scatter(xs, ys, c = 'red', s=2)
@@ -54,6 +70,14 @@ res = ""
 cur_nail = 1        #start at arbitrary nail
 ref_arr = np.transpose(np.array(ref)[:, :, 0])
 base_arr = base.load()
+
+# title if BEAUTIFY is true
+if BEAUTIFY:
+    title = '--' + str(BOARD_WIDTH) + 'bw-' + str(PIXEL_WIDTH) + "pw-" + str(
+        LINE_TRANSPARENCY) + 'lt-' + str(NUM_NAILS) + 'n-' + str(MAX_ITERATIONS) + 'i'
+else:
+    title = str(BOARD_WIDTH)+'W-'+str(PIXEL_WIDTH)+"P-"+str(
+        NUM_NAILS)+'N-'+str(MAX_ITERATIONS)+'-'+str(LINE_TRANSPARENCY)
 
 for i in range(MAX_ITERATIONS):
     best_line = None
@@ -73,21 +97,24 @@ for i in range(MAX_ITERATIONS):
             #print(new_nail,tmp_value/num_pts)
             min_avg_value = tmp_value/num_pts
 
-    #Uncomment for progress pictures every x=200 iterations
-    #if i%200 == 0:
-    #    title = OUTPUT_TITLE+str(BOARD_WIDTH)+'W-'+str(PIXEL_WIDTH)+"P-"+str(NUM_NAILS)+'N-'+str(i)+'-'+str(LINE_TRANSPARENCY)+'.png'
-    #    print(title)
-    #    base.save(title)
-    #    res += "\n --- "+str(i)+" --- \n"
-
     ref_arr[best_line] = 255
     addLine = ImageDraw.Draw(base)
     addLine.line((nails[cur_nail][0],nails[cur_nail][1],nails[new_nail][0],nails[new_nail][1]), fill=0)
+
     res += " " + str(new_nail)
     print("Iteration ",i, " Complete: ","(",cur_nail,",",new_nail,")")
     cur_nail = new_nail
 
+    if BEAUTIFY:
+        # differing every 100 step if BEAUTIFY is true
+        if i % 100 == 0:
+            res += "\n" + "\n" + "-----   " + str(i) + "   -----" + "\n" + "\n"
+        # saving the image every 200 iteration
+        if i % 200 == 0:
+            base.save(OUTPUT_TITLE + title + '.png')
+
+
+results = open(RESULT_TITLE + title + ".txt", "w")
 results.write(res)
 results.close()
-title = OUTPUT_TITLE+str(BOARD_WIDTH)+'W-'+str(PIXEL_WIDTH)+"P-"+str(NUM_NAILS)+'N-'+str(MAX_ITERATIONS)+'-'+str(LINE_TRANSPARENCY)+'.png'
-base.save(title)
+base.save(OUTPUT_TITLE + title + '.png')

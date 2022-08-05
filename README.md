@@ -11,4 +11,4 @@ To run the script, call `py main.py [args]` from the command line with the follo
 - `LINE_TRANSPARENCY`: how many lines overlapped required to reach black (value between 0 to 1)
 - `NUM_NAILS`: how many nails to place on the board
 - `MAX_ITERATIONS`: how many thread segments to place before algorithm terminates
-
+- `BEAUTIFY`: determine beautifying the output path, result path and process or not
