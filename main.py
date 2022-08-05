@@ -61,6 +61,7 @@ if BEAUTIFY:
     res += "Line Transparency: " + str(LINE_TRANSPARENCY) + "\n"
     res += "Number of Nails: " + str(NUM_NAILS) + "\n"
     res += "Maximum Iterations: " + str(MAX_ITERATIONS) + "\n"
+    res += "python command:   py main.py " + str(BOARD_WIDTH) + " " + str(PIXEL_WIDTH) + " " + str(LINE_TRANSPARENCY) + " " + str(NUM_NAILS) + " " + str(MAX_ITERATIONS) + " " + str(BEAUTIFY)
 
 #Uncomment to show nails plot
 #plt.scatter(xs, ys, c = 'red', s=2)
@@ -69,6 +70,14 @@ if BEAUTIFY:
 cur_nail = 1        #start at arbitrary nail
 ref_arr = np.transpose(np.array(ref)[:, :, 0])
 base_arr = base.load()
+
+# title if BEAUTIFY is true
+if BEAUTIFY:
+    title = '--' + str(BOARD_WIDTH) + 'bw-' + str(PIXEL_WIDTH) + "pw-" + str(
+        LINE_TRANSPARENCY) + 'lt-' + str(NUM_NAILS) + 'n-' + str(MAX_ITERATIONS) + 'i'
+else:
+    title = str(BOARD_WIDTH)+'W-'+str(PIXEL_WIDTH)+"P-"+str(
+        NUM_NAILS)+'N-'+str(MAX_ITERATIONS)+'-'+str(LINE_TRANSPARENCY)
 
 for i in range(MAX_ITERATIONS):
     best_line = None
@@ -88,33 +97,21 @@ for i in range(MAX_ITERATIONS):
             #print(new_nail,tmp_value/num_pts)
             min_avg_value = tmp_value/num_pts
 
-    #Uncomment for progress pictures every x=200 iterations
-    #if i%200 == 0:
-    #    title = OUTPUT_TITLE+str(BOARD_WIDTH)+'W-'+str(PIXEL_WIDTH)+"P-"+str(NUM_NAILS)+'N-'+str(i)+'-'+str(LINE_TRANSPARENCY)+'.png'
-    #    print(title)
-    #    base.save(title)
-    #    res += "\n --- "+str(i)+" --- \n"
-
     ref_arr[best_line] = 255
     addLine = ImageDraw.Draw(base)
     addLine.line((nails[cur_nail][0],nails[cur_nail][1],nails[new_nail][0],nails[new_nail][1]), fill=0)
-
-    # differing every 100 step if BEAUTIFY is true
-    if BEAUTIFY:
-        if i % 100 == 0:
-            res += "\n" + "\n" + "-----   " + str(i) + "   -----" + "\n" + "\n"
 
     res += " " + str(new_nail)
     print("Iteration ",i, " Complete: ","(",cur_nail,",",new_nail,")")
     cur_nail = new_nail
 
-# title if BEAUTIFY is true
-if BEAUTIFY:
-    title = '--' + str(BOARD_WIDTH) + 'bw-' + str(PIXEL_WIDTH) + "pw-" + str(
-        LINE_TRANSPARENCY) + 'lt-' + str(NUM_NAILS) + 'n-' + str(MAX_ITERATIONS) + 'i'
-else:
-    title = str(BOARD_WIDTH)+'W-'+str(PIXEL_WIDTH)+"P-"+str(
-        NUM_NAILS)+'N-'+str(MAX_ITERATIONS)+'-'+str(LINE_TRANSPARENCY)
+    if BEAUTIFY:
+        # differing every 100 step if BEAUTIFY is true
+        if i % 100 == 0:
+            res += "\n" + "\n" + "-----   " + str(i) + "   -----" + "\n" + "\n"
+        # saving the image every 200 iteration
+        if i % 200 == 0:
+            base.save(OUTPUT_TITLE + title + '.png')
 
 
 results = open(RESULT_TITLE + title + ".txt", "w")
